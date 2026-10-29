@@ -1,28 +1,100 @@
+import threading
+
 from maspy import *
 
-from agentes.agente_preventivo import AgentePreventivo
-from ambiente.ambiente import AmbienteViolenciaDomestica
-from dados.regioes import REGIOES
+from agentes.agente_hibrido import (
+    AgenteHibrido
+)
+
+from ambiente.ambiente import (
+    AmbienteViolenciaDomestica
+)
+
+from dados.chamados import (
+    CHAMADOS,
+    LIMIAR_URGENCIA,
+    PAREDES
+)
+
+from visualizacao.gui import (
+    Visualizacao
+)
 
 
 if __name__ == "__main__":
 
-    ambiente = AmbienteViolenciaDomestica(REGIOES)
+    # -----------------------------
+    # AMBIENTE
+    # -----------------------------
 
-    agente_1 = AgentePreventivo("Equipe1")
-    agente_2 = AgentePreventivo("Equipe2")
-
-    Admin().connect_to(
-        [agente_1, agente_2],
-        ambiente
+    ambiente = (
+        AmbienteViolenciaDomestica(
+            CHAMADOS,
+            PAREDES
+        )
     )
 
-    agente_1.add(
-        Goal("atender_regiao")
+    # -----------------------------
+    # COMUNICAÇÃO
+    # -----------------------------
+
+    canal = Channel(
+        "Cooperacao"
     )
 
-    agente_2.add(
-        Goal("atender_regiao")
+    # -----------------------------
+    # AGENTES
+    # -----------------------------
+
+    equipe_1 = AgenteHibrido(
+        "Equipe1",
+        LIMIAR_URGENCIA
     )
 
-    Admin().start_system()
+    equipe_2 = AgenteHibrido(
+        "Equipe2",
+        LIMIAR_URGENCIA
+    )
+
+    agentes = [
+        equipe_1,
+        equipe_2
+    ]
+
+    # -----------------------------
+    # CONEXÕES
+    # -----------------------------
+
+    admin = Admin()
+
+    admin.connect_to(
+        agentes,
+        [
+            ambiente,
+            canal
+        ]
+    )
+
+    # -----------------------------
+    # MASPY
+    # -----------------------------
+
+    thread_maspy = (
+        threading.Thread(
+            target=admin.start_system,
+            daemon=True
+        )
+    )
+
+    thread_maspy.start()
+
+    # -----------------------------
+    # GUI
+    # -----------------------------
+
+    interface = Visualizacao(
+        ambiente,
+        agentes
+    )
+
+    interface.executar()
