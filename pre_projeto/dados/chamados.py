@@ -8,11 +8,15 @@ LIMIAR_URGENCIA = 10
 
 PERCENTUAL_PAREDES = 0.10
 
+# Velocidade da simulação para auditoria visual.
+ATRASO_MOVIMENTO = 0.60
+ATRASO_EVENTO = 1.00
+
 
 CHAMADOS = [
     {
         "id": 1,
-        "x": 18,
+        "x": 1,
         "y": 5,
         "valor": 5
     },

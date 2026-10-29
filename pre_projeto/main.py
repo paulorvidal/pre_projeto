@@ -20,12 +20,46 @@ from visualizacao.gui import (
     Visualizacao
 )
 
+from auditoria import (
+    Auditoria
+)
+
 
 if __name__ == "__main__":
 
-    # -----------------------------
+    # =================================
+    # ADMIN
+    # =================================
+
+    admin = Admin()
+
+    admin.permit_print = False
+
+    # False:
+    # mostra somente nossa auditoria.
+    #
+    # True:
+    # mostra também os logs internos
+    # do MASPY para depuração.
+    MOSTRAR_LOG_MASPY = False
+
+    admin.permit_print = (
+        MOSTRAR_LOG_MASPY
+    )
+
+    admin.show_exec = False
+
+    admin.agt_sh_exec = False
+    admin.agt_sh_cycle = False
+    admin.agt_sh_prct = False
+    admin.agt_sh_slct = False
+
+    admin.env_sh_exec = False
+    admin.ch_sh_exec = False
+
+    # =================================
     # AMBIENTE
-    # -----------------------------
+    # =================================
 
     ambiente = (
         AmbienteViolenciaDomestica(
@@ -34,17 +68,17 @@ if __name__ == "__main__":
         )
     )
 
-    # -----------------------------
-    # COMUNICAÇÃO
-    # -----------------------------
+    # =================================
+    # CANAL
+    # =================================
 
     canal = Channel(
         "Cooperacao"
     )
 
-    # -----------------------------
+    # =================================
     # AGENTES
-    # -----------------------------
+    # =================================
 
     equipe_1 = AgenteHibrido(
         "Equipe1",
@@ -61,11 +95,9 @@ if __name__ == "__main__":
         equipe_2
     ]
 
-    # -----------------------------
+    # =================================
     # CONEXÕES
-    # -----------------------------
-
-    admin = Admin()
+    # =================================
 
     admin.connect_to(
         agentes,
@@ -75,9 +107,18 @@ if __name__ == "__main__":
         ]
     )
 
-    # -----------------------------
+    # =================================
+    # AUDITORIA
+    # =================================
+
+    Auditoria.iniciar(
+        ambiente,
+        agentes
+    )
+
+    # =================================
     # MASPY
-    # -----------------------------
+    # =================================
 
     thread_maspy = (
         threading.Thread(
@@ -88,9 +129,9 @@ if __name__ == "__main__":
 
     thread_maspy.start()
 
-    # -----------------------------
+    # =================================
     # GUI
-    # -----------------------------
+    # =================================
 
     interface = Visualizacao(
         ambiente,

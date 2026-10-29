@@ -5,11 +5,25 @@ from collections import deque
 from maspy import *
 
 from dados.chamados import (
-    TAMANHO_GRID
+    TAMANHO_GRID,
+    ATRASO_MOVIMENTO,
+    ATRASO_EVENTO
 )
 
 
 class AgenteHibrido(Agent):
+
+    def log(
+        self,
+        tipo,
+        mensagem
+    ):
+        print(
+            f"[{self.nome_exibicao:<7}] "
+            f"{tipo:<14} | "
+            f"{mensagem}",
+            flush=True
+        )
 
     def __init__(
         self,
@@ -215,10 +229,12 @@ class AgenteHibrido(Agent):
             f"atendido em ({x}, {y})"
         )
 
-        self.print(
-            "Enviou mensagem "
-            f"target_atendido"
-            f"({x}, {y})"
+        self.log(
+            "MENSAGEM",
+            (
+                f"avisou target atendido "
+                f"em ({x}, {y})"
+            )
         )
 
     def processar_mensagens(self):
@@ -279,10 +295,12 @@ class AgenteHibrido(Agent):
 
                 if recebeu_novidade:
 
-                    self.print(
-                        "Recebeu novas "
-                        "informações de mapa "
-                        f"de {mensagem.source}"
+                    self.log(
+                        "COMUNICACAO",
+                        (
+                            f"recebeu mapa de "
+                            f"{mensagem.source}"
+                        )
                     )
 
                     self.ultima_mensagem = (
@@ -346,12 +364,12 @@ class AgenteHibrido(Agent):
                             id_chamado
                         )
 
-                        self.print(
-                            "Recebeu mensagem: "
-                            f"chamado "
-                            f"{id_chamado} "
-                            "já foi atendido por "
-                            f"{mensagem.source}"
+                        self.log(
+                            "MENSAGEM",
+                            (
+                                f"C{id_chamado} ja foi atendido "
+                                f"por {mensagem.source}"
+                            )
                         )
 
                         self.ultima_mensagem = (
@@ -840,14 +858,24 @@ class AgenteHibrido(Agent):
                         "Parede descoberta"
                     )
 
-                    self.print(
-                        "Descobriu parede "
-                        f"em {parede}"
+                    self.log(
+                        "PAREDE",
+                        (
+                            f"encontrou {parede} "
+                            "| recalculando rota"
+                        )
                     )
 
                     # Compartilha imediatamente.
                     self.compartilhar_mapa()
 
+                    self.log(
+                        "COMUNICACAO",
+                        (
+                            f"compartilhou mapa "
+                            f"({len(self.wall_set)} paredes)"
+                        )
+                    )
                 # Aqui está a correção:
                 #
                 # NÃO tenta andar para trás
@@ -858,14 +886,12 @@ class AgenteHibrido(Agent):
                 # o Wall_Set atualizado.
 
                 time.sleep(
-                    0.15
+                    ATRASO_EVENTO
                 )
 
                 continue
 
-            # =================================
             # MOVIMENTO
-            # =================================
 
             if (
                 resultado
@@ -880,15 +906,21 @@ class AgenteHibrido(Agent):
                     nova_posicao
                 )
 
+                self.log(
+                    "MOVIMENTO",
+                    (
+                        f"{posicao} -> {nova_posicao} "
+                        f"| destino C{id_chamado}"
+                    )
+                )
+
                 time.sleep(
-                    0.15
+                    ATRASO_MOVIMENTO
                 )
 
                 continue
 
-            # =================================
             # TARGET ATENDIDO
-            # =================================
 
             if (
                 resultado
@@ -908,52 +940,50 @@ class AgenteHibrido(Agent):
                     f"{id_chamado}"
                 )
 
-                self.print(
-                    f"Atendeu o chamado "
-                    f"{id_chamado}"
+                self.log(
+                    "ATENDIMENTO",
+                    (
+                        f"atendeu C{id_chamado} "
+                        f"em {nova_posicao}"
+                    )
                 )
 
-                # Informa a outra equipe.
                 self.avisar_target_atendido(
                     destino[0],
                     destino[1]
                 )
 
-                # Compartilha também seu
-                # conhecimento do mapa.
                 self.compartilhar_mapa()
 
                 return (
                     "atendido"
                 )
 
-            # =================================
             # OUTRA EQUIPE CHEGOU PRIMEIRO
-            # =================================
 
             if (
                 resultado
                 == "indisponivel"
             ):
 
+                self.alvo_atual = None
+
                 self.estado_atual = (
-                    "Chamado perdido"
+                    "Reavaliando"
                 )
 
                 self.print(
-                    f"Chamado "
-                    f"{id_chamado} "
-                    "já foi atendido por "
-                    "outra equipe."
+                    "Reavaliando os "
+                    "chamados..."
                 )
 
-                return (
-                    "indisponivel"
+                time.sleep(
+                    ATRASO_EVENTO
                 )
 
-    # =================================
+                continue
+
     # CICLO DO AGENTE HÍBRIDO
-    # =================================
 
     @pl(
         gain,
@@ -1014,12 +1044,12 @@ class AgenteHibrido(Agent):
                     "Resposta imediata"
                 )
 
-                self.print(
-                    "CAMADA REATIVA: "
-                    f"chamado "
-                    f"{id_chamado} "
-                    f"com valor "
-                    f"{chamado['valor']}"
+                self.log(
+                    "REATIVO",
+                    (
+                        f"priorizou C{id_chamado} "
+                        f"(valor={chamado['valor']})"
+                    )
                 )
 
             # =================================
@@ -1067,14 +1097,13 @@ class AgenteHibrido(Agent):
                     "Escolha por utilidade"
                 )
 
-                self.print(
-                    "CAMADA DELIBERATIVA: "
-                    f"escolheu chamado "
-                    f"{id_chamado} "
-                    f"com valor "
-                    f"{chamado['valor']} "
-                    f"(utilidade "
-                    f"{self.ultima_utilidade})"
+                self.log(
+                    "DELIBERATIVO",
+                    (
+                        f"escolheu C{id_chamado} "
+                        f"(valor={chamado['valor']}, "
+                        f"utilidade={self.ultima_utilidade})"
+                    )
                 )
 
             # =================================
@@ -1119,9 +1148,12 @@ class AgenteHibrido(Agent):
                     "Reavaliando"
                 )
 
-                self.print(
-                    "Reavaliando os "
-                    "chamados..."
+                self.log(
+                    "REAVALIACAO",
+                    (
+                        "alvo perdido; "
+                        "buscando outro chamado"
+                    )
                 )
 
                 continue
