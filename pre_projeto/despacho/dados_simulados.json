@@ -1,0 +1,78 @@
+{
+  "equipes": [
+    {
+      "id_equipe": "E1",
+      "nome": "Patrulha Leste",
+      "especialidade": "Resposta inicial",
+      "integrantes": 2,
+      "posicao_base": [
+        8,
+        5
+      ]
+    },
+    {
+      "id_equipe": "E2",
+      "nome": "Patrulha Oeste",
+      "especialidade": "Atendimento especializado",
+      "integrantes": 2,
+      "posicao_base": [
+        2,
+        5
+      ]
+    }
+  ],
+  "ocorrencias": [
+    {
+      "id_ocorrencia": "OC001",
+      "crime": "Ameaça",
+      "violencia_domestica": true,
+      "local": "residência",
+      "posicao": [
+        6,
+        5
+      ],
+      "prioridade": 5,
+      "instante_chamado": 0,
+      "status": "pendente"
+    },
+    {
+      "id_ocorrencia": "OC002",
+      "crime": "Violência psicológica",
+      "violencia_domestica": true,
+      "local": "residência",
+      "posicao": [
+        14,
+        3
+      ],
+      "prioridade": 5,
+      "instante_chamado": 0,
+      "status": "pendente"
+    },
+    {
+      "id_ocorrencia": "OC003",
+      "crime": "Dano patrimonial",
+      "violencia_domestica": true,
+      "local": "residência",
+      "posicao": [
+        6,
+        8
+      ],
+      "prioridade": 3,
+      "instante_chamado": 0,
+      "status": "pendente"
+    },
+    {
+      "id_ocorrencia": "OC004",
+      "crime": "Agressão física",
+      "violencia_domestica": true,
+      "local": "residência",
+      "posicao": [
+        8,
+        2
+      ],
+      "prioridade": 10,
+      "instante_chamado": 1,
+      "status": "pendente"
+    }
+  ]
+}
